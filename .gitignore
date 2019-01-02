@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.xml
+*.yml
+*.egg-info
+.DS_Store
+*.log
+.installed.cfg
+
+dist
+build
+venv/
+.idea/
+bin
+develop-eggs
+dist
+downloads
+eggs
+parts
+lib
+lib64
+
+# Environments
+.env
+venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
