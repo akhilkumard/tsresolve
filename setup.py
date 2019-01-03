@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.01'
+version = '0.001'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -23,6 +23,6 @@ setup(name='tsresolve',
       package_dir={'': 'src'},
       zip_safe=False,
       install_requires=[
-          'parsedatetime',
+          'parsedatetime','python-dateutil',
       ]
       )

@@ -2,8 +2,8 @@ from tsresolve import RecurringEvent
 from datetime import timedelta
 from calendar import monthrange
 import datetime
-import time
 import re
+from dateutil import parser
 
 RE_DATES = re.compile(r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)')
 RE_YEAR = re.compile(r'(?P<year>\s\d{4})(\s|$)')
@@ -17,9 +17,11 @@ RE_TILL = re.compile(
     r'(?P<today>till\stoday|till\sdate|until\stoday|till\snow|till\stime|till\syesterday|till\stomorrow)')
 
 
-def point_of_time(phrase, NOW=datetime.datetime.now()):
+def point_of_time(phrase, NOW=""):
+    try:NOW = parser.parse(NOW)
+    except: NOW = datetime.datetime.now()
     r = RecurringEvent(NOW)
-    phrase = phrase.lower()
+    phrase = " " + phrase.lower()
     stamp, status = r.parse(phrase)
 
     if stamp is None:
@@ -33,10 +35,11 @@ def point_of_time(phrase, NOW=datetime.datetime.now()):
 
     return timestamp, status
 
-
-def period_of_time(phrase, NOW=datetime.datetime.now()):
+def period_of_time(phrase, NOW=""):
+    try:NOW = parser.parse(NOW)
+    except: NOW = datetime.datetime.now()
     r = RecurringEvent(NOW)
-    phrase = phrase.lower()
+    phrase = " " + phrase.lower()
     main_phrase_time = r.parse(phrase)
 
     if main_phrase_time[0] is None:
@@ -82,8 +85,6 @@ def period_of_time(phrase, NOW=datetime.datetime.now()):
             str_phrase_time = str(phrase_time)
 
             phrase_month_number = str_phrase_time.split("-")[1]
-            month_name_in_phrase = time.strftime('%B', time.struct_time((0, int(phrase_month_number), 0,) + (0,) * 6))
-            month_name_in_phrase = month_name_in_phrase.lower()
             phrase_year = str_phrase_time.split("-")[0]
             days_in_month = monthrange(int(phrase_year), int(phrase_month_number))[1]
 
@@ -128,7 +129,6 @@ def period_of_time(phrase, NOW=datetime.datetime.now()):
 
                 elif dates:
                     phrase_time = year_handler(phrase, NOW)
-                    # phrase_time = r.parse(phrase)[0]
                     ts, te = month_ts_te_generator(phrase_time, phrase_time)
 
                 else:
@@ -195,7 +195,6 @@ def month_ts_te_generator(ts, te):
 
     return (timestart, timeend)
 
-
 def week_ts_te_generator(ts, te):
     while ts > te:
         week_now = te + timedelta(days=7)
@@ -217,16 +216,19 @@ def year_handler(phrase, NOW):
         match = ammod_found.group('ammod')
 
         if match == " next" or match == " coming" or match == " upcoming":
-            # Decreasing one year from phrase time to balance
-            year_now = phrase_time.year - 1
-            phrase_time = phrase_time.replace(year=year_now)
+            if " month" not in phrase:
+                # Decreasing one year from phrase time to balance
+                year_now = phrase_time.year - 1
+                phrase_time = phrase_time.replace(year=year_now)
+            else:
+                pass
 
         elif match == " this":
             # Matching with Year of NOW
             year_now = NOW.year
             phrase_time = phrase_time.replace(year=year_now)
 
-        elif match == " last" and not "month" in phrase:
+        elif match == " last" and not " month" in phrase:
             # Matching with Last year
 
             if phrase_time.year < NOW.year:
@@ -246,7 +248,6 @@ def year_handler(phrase, NOW):
             phrase_time = phrase_time
 
     return phrase_time
-
 
 def week_handler(phrase, NOW):
     r = RecurringEvent(NOW)
@@ -290,6 +291,5 @@ def week_handler(phrase, NOW):
 
 
 if __name__ == '__main__':
-    print(period_of_time("show meetings from this march", NOW=datetime.datetime(2018, 2, 19, 8, 30, 0)))
-    # print(point_of_time("jan 1st"))
-    # NOW = datetime.datetime(2018, 2, 13, 8, 30, 0)
+    # print(period_of_time("November 5th"))
+    print(point_of_time("jan 1st", "2015-11-03"))

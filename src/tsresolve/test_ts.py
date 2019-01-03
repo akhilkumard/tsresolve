@@ -3,7 +3,7 @@ import datetime
 import unittest
 
 #TODO DO NOT CHANGE THIS !!!
-NOW = datetime.datetime(2018, 12, 1, 8, 30, 0)
+NOW = "2018-12-1T08:30:0"
 #TODO DO NOT CHANGE THIS !!!
 
 
@@ -712,42 +712,42 @@ class TimestampRoutes_Point_of_time_Tests(unittest.TestCase):
         self.assertEqual(result[1], True)
 
     def test_point_of_time_115(self):
-        NOW = datetime.datetime(2018, 12, 3, 8, 30, 0)
+        NOW = "2018-12-3T08:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend", NOW)
         expected_timestamp = datetime.datetime(2018, 12, 8, 9, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
         self.assertEqual(result[1], False)
 
     def test_point_of_time_116(self):
-        NOW = datetime.datetime(2018, 12, 11, 8, 30, 0)
+        NOW = "2018-12-3T08:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend morning at 6", NOW)
-        expected_timestamp = datetime.datetime(2018, 12, 15, 6, 0, 0).isoformat()
+        expected_timestamp = datetime.datetime(2018, 12, 8, 6, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
         self.assertEqual(result[1], True)
 
     def test_point_of_time_117(self):
-        NOW = datetime.datetime(2018, 12, 11, 10, 30, 0)
+        NOW = "2018-12-11T10:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend evening at 6", NOW)
         expected_timestamp = datetime.datetime(2018, 12, 15, 18, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
         self.assertEqual(result[1], True)
 
     def test_point_of_time_118(self):
-        NOW = datetime.datetime(2018, 12, 11, 10, 30, 0)
+        NOW = "2018-12-11T10:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend morning", NOW)
         expected_timestamp = datetime.datetime(2018, 12, 15, 6, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
         self.assertEqual(result[1], True)
 
     def test_point_of_time_119(self):
-        NOW = datetime.datetime(2018, 12, 11, 10, 30, 0)
+        NOW = "2018-12-11T10:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend noon", NOW)
         expected_timestamp = datetime.datetime(2018, 12, 15, 12, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
         self.assertEqual(result[1], True)
 
     def test_point_of_time_120(self):
-        NOW = datetime.datetime(2018, 12, 11, 10, 30, 0)
+        NOW = "2018-12-11T10:30:0"
         result = point_of_time("schedule a meeting with Krishna and Virgil on this weekend afternoon", NOW)
         expected_timestamp = datetime.datetime(2018, 12, 15, 13, 0, 0).isoformat()
         self.assertEqual(result[0], expected_timestamp)
@@ -1032,7 +1032,7 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_53(self):
-        NOW = datetime.datetime(2018, 12, 21, 15, 18, 0)
+        NOW = "2018-12-21T15:18:0"
         result = period_of_time("Search meetings from yesterday", NOW)
         expected_timestamp = ('2018-12-20T00:00:00', '2018-12-20T23:59:59')
         self.assertEqual(result, expected_timestamp)
@@ -1043,19 +1043,19 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_55(self):
-        NOW = datetime.datetime(2018, 12, 21, 15, 18, 0)
+        NOW = "2018-12-21T15:18:0"
         result = period_of_time("Search meetings from last Monday", NOW)
         expected_timestamp = ('2018-12-10T00:00:00', '2018-12-10T23:59:59')
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_56(self):
-        NOW = datetime.datetime(2018, 12, 21, 15, 18, 0)
+        NOW = "2018-12-21T15:18:0"
         result = period_of_time("Search meetings from this Monday", NOW)
         expected_timestamp = ('2018-12-17T00:00:00', '2018-12-17T23:59:59')
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_57(self):
-        NOW = datetime.datetime(2018, 12, 21, 15, 18, 0)
+        NOW = "2018-12-21T15:18:0"
         result = period_of_time("Search meetings from next Tuesday", NOW)
         expected_timestamp = ('2018-12-25T00:00:00', '2018-12-25T23:59:59')
         self.assertEqual(result, expected_timestamp)
@@ -1310,4 +1310,9 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
         result = period_of_time("Search meetings between yesterday 10 a.m. to today 4 p.m.", NOW)
         expected_timestamp = ("","")
         self.assertEqual(result, expected_timestamp)
-    
+
+    def test_period_of_time_101(self):
+        NOW = "2019-01-03T11:28:0"
+        result = period_of_time("Search meetings from next month", NOW)
+        expected_timestamp = ("2019-02-01T00:00:00","2019-02-28T23:59:59")
+        self.assertEqual(result, expected_timestamp)
