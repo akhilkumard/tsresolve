@@ -4,22 +4,35 @@ from calendar import monthrange
 import datetime
 import re
 from dateutil import parser
+import logging
 
 RE_DATES = re.compile(r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)')
 RE_YEAR = re.compile(r'(?P<year>\s\d{4})(\s|$)')
 RE_AMMOD = re.compile(r'(?P<ammod>\sprevious|\sthis|\snext|\slast|\scoming|\supcoming)')
-# RE_MONTH_NAMES = re.compile(r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>jan(uary)?|feb(r?uary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sept?(ember)?|oct(ober)?|nov(ember)?|dec(ember)?)\s?(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
+# This is to detect shortcut forms of months in future.
+# RE_MONTH_NAMES = re.compile(r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>jan(uary)?|'
+#                             r'feb(r?uary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sept?(ember)?|'
+#                             r'oct(ober)?|nov(ember)?|dec(ember)?)\s?(?P<date>\d{1,2}st|\d{1,2}nd|'
+#                             r'\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
 RE_MONTH_NAMES = re.compile(
-    r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\s?(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
+    r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>january|february|march|april|'
+    r'may|june|july|august|september|october|november|december)\s?'
+    r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
 RE_DAYS = re.compile(
-    r'%s?\s(?P<day>sunday|monday|tuesday|wednesday|thursday|friday|saturday|yesterday|tomorrow|weekend)' % RE_AMMOD.pattern)
+    r'%s?\s(?P<day>sunday|monday|tuesday|wednesday|thursday|friday|saturday|weekend)' % RE_AMMOD.pattern)
 RE_TILL = re.compile(
     r'(?P<today>till\stoday|till\sdate|until\stoday|till\snow|till\stime|till\syesterday|till\stomorrow)')
 
+logger = logging.getLogger("app_logger")
+
 
 def point_of_time(phrase, NOW=""):
-    try:NOW = parser.parse(NOW)
-    except: NOW = datetime.datetime.now()
+    try:
+        NOW = parser.parse(NOW)
+    except Exception as e:
+        logger.error(e, exc_info=True)
+        NOW = datetime.datetime.now()
+
     r = RecurringEvent(NOW)
     phrase = " " + phrase.lower()
     stamp, status = r.parse(phrase)
@@ -35,16 +48,21 @@ def point_of_time(phrase, NOW=""):
 
     return timestamp, status
 
+
 def period_of_time(phrase, NOW=""):
-    try:NOW = parser.parse(NOW)
-    except: NOW = datetime.datetime.now()
+    try:
+        NOW = parser.parse(NOW)
+    except Exception as e:
+        logger.error(e, exc_info=True)
+        NOW = datetime.datetime.now()
+
     r = RecurringEvent(NOW)
     phrase = " " + phrase.lower()
     main_phrase_time = r.parse(phrase)
 
     if main_phrase_time[0] is None:
         ts, te = None, None
-        return (ts, te)
+        return ts, te
 
     else:
         mphrase_time = main_phrase_time[0]
@@ -174,15 +192,15 @@ def period_of_time(phrase, NOW=""):
                         ts, te = week_ts_te_generator(phrase_time, phrase_time)
 
                 elif year_found or "year" in phrase:
-                    ts = re.sub('-\d{2}-\d{2}\s(\d.+)', '-01-01T00:00:00', str(mphrase_time))
-                    te = re.sub('-\d{2}-\d{2}\s(\d.+)', '-12-31T23:59:59', str(mphrase_time))
+                    ts = re.sub(r'-\d{2}-\d{2}\s(\d.+)', '-01-01T00:00:00', str(mphrase_time))
+                    te = re.sub(r'-\d{2}-\d{2}\s(\d.+)', '-12-31T23:59:59', str(mphrase_time))
 
                 # Specific single days
                 else:
-                    phrase_time = week_handler(phrase, NOW)
+                    phrase_time = mphrase_time
                     ts, te = month_ts_te_generator(phrase_time, phrase_time)
 
-        return (ts, te)
+        return ts, te
 
 
 def month_ts_te_generator(ts, te):
@@ -193,7 +211,8 @@ def month_ts_te_generator(ts, te):
         timestart = ts.replace(hour=00, minute=00, second=0, microsecond=000).isoformat()
         timeend = te.replace(hour=23, minute=59, second=59, microsecond=000).isoformat()
 
-    return (timestart, timeend)
+    return timestart, timeend
+
 
 def week_ts_te_generator(ts, te):
     while ts > te:
@@ -204,7 +223,7 @@ def week_ts_te_generator(ts, te):
         timestart = ts.replace(hour=00, minute=00, second=0, microsecond=000).isoformat()
         timeend = te.replace(hour=23, minute=59, second=59, microsecond=000).isoformat()
 
-        return (timestart, timeend)
+        return timestart, timeend
 
 
 def year_handler(phrase, NOW):
@@ -228,7 +247,7 @@ def year_handler(phrase, NOW):
             year_now = NOW.year
             phrase_time = phrase_time.replace(year=year_now)
 
-        elif match == " last" and not " month" in phrase:
+        elif match == " last" and " month" not in phrase:
             # Matching with Last year
 
             if phrase_time.year < NOW.year:
@@ -248,6 +267,7 @@ def year_handler(phrase, NOW):
             phrase_time = phrase_time
 
     return phrase_time
+
 
 def week_handler(phrase, NOW):
     r = RecurringEvent(NOW)
@@ -289,7 +309,3 @@ def week_handler(phrase, NOW):
 
     return phrase_time
 
-
-if __name__ == '__main__':
-    # print(period_of_time("November 5th"))
-    print(point_of_time("jan 1st", "2015-11-03"))
