@@ -29,6 +29,8 @@ logger = logging.getLogger("app_logger")
 def point_of_time(phrase, NOW=""):
     try:
         NOW = parser.parse(NOW)
+        NOW = NOW.replace(tzinfo=None)
+
     except Exception as e:
         logger.error(e, exc_info=True)
         NOW = datetime.datetime.now()
@@ -52,6 +54,8 @@ def point_of_time(phrase, NOW=""):
 def period_of_time(phrase, NOW=""):
     try:
         NOW = parser.parse(NOW)
+        NOW = NOW.replace(tzinfo=None)
+
     except Exception as e:
         logger.error(e, exc_info=True)
         NOW = datetime.datetime.now()
@@ -77,17 +81,17 @@ def period_of_time(phrase, NOW=""):
             today_time = NOW
             week_day_number = NOW.weekday()
             this_week_start = today_time - timedelta(days=week_day_number)
-            this_week_end = this_week_start + timedelta(days=5)
+            this_week_end = this_week_start + timedelta(days=6)
 
             if " last " in phrase or " previous " in phrase:
                 last_week_start_day = this_week_start - timedelta(days=7)
-                last_week_end_day = last_week_start_day + timedelta(days=5)
+                last_week_end_day = last_week_start_day + timedelta(days=6)
 
                 ts, te = week_ts_te_generator(last_week_start_day, last_week_end_day)
 
             elif " next " in phrase:
                 next_week_start_day = this_week_start + timedelta(days=7)
-                next_week_end_day = next_week_start_day + timedelta(days=5)
+                next_week_end_day = next_week_start_day + timedelta(days=6)
 
                 ts, te = week_ts_te_generator(next_week_start_day, next_week_end_day)
 
@@ -308,4 +312,3 @@ def week_handler(phrase, NOW):
             phrase_time = phrase_time
 
     return phrase_time
-

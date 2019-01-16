@@ -2,10 +2,7 @@ from tsresolve.time_stamp_resolver import point_of_time, period_of_time
 import unittest
 
 # TODO DO NOT CHANGE THIS !!!
-NOW = "2018-12-1T08:30:0"
-
-# TODO DO NOT CHANGE THIS !!!
-
+NOW = "2018-12-1T08:30:00-00:00"
 
 class TimestampRoutes_Point_of_time_Tests(unittest.TestCase):
 
@@ -829,7 +826,7 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
 
     def test_period_of_time_14(self):
         result = period_of_time("Search meetings for last week", NOW)
-        expected_timestamp = ('2018-11-19T00:00:00', '2018-11-24T23:59:59')
+        expected_timestamp = ('2018-11-19T00:00:00', '2018-11-25T23:59:59')
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_15(self):
@@ -855,7 +852,7 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
 
     def test_period_of_time_19(self):
         result = period_of_time("Search meetings for this week", NOW)
-        expected_timestamp = ('2018-11-26T00:00:00', '2018-12-01T23:59:59')
+        expected_timestamp = ('2018-11-26T00:00:00', '2018-12-02T23:59:59')
         self.assertEqual(result, expected_timestamp)
 
     def test_period_of_time_20(self):
@@ -1322,4 +1319,3 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
         result = period_of_time("Search meetings for tomorrow", NOW)
         expected_timestamp = ('2018-12-02T00:00:00', '2018-12-02T23:59:59')
         self.assertEqual(result, expected_timestamp)
-
