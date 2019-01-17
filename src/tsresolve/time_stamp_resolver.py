@@ -283,7 +283,7 @@ def week_handler(phrase, NOW):
 
         if match == " next" or match == " coming" or match == " upcoming":
             # checking next uncompleted day to match
-            nxwknw = NOW + timedelta(days=8)
+            nxwknw = NOW + timedelta(days=7)
             if phrase_time > nxwknw:
                 day_now = phrase_time + timedelta(days=-7)
                 dn = day_now.day
@@ -293,7 +293,7 @@ def week_handler(phrase, NOW):
 
         elif match == " last":
             # Matching with Last year
-            prwknw = NOW - timedelta(days=8)
+            prwknw = NOW - timedelta(days=7)
 
             if phrase_time > prwknw:
                 day_now = phrase_time - timedelta(days=7)
