@@ -1,5 +1,6 @@
-from tsresolve.time_stamp_resolver import point_of_time, period_of_time
 import unittest
+import json
+from tsresolve.time_stamp_resolver import point_of_time, period_of_time
 
 # TODO DO NOT CHANGE THIS !!!
 NOW = "2018-12-1T08:30:00-00:00"
@@ -1107,7 +1108,8 @@ class TimestampRoutes_Period_of_time_Tests(unittest.TestCase):
 
     def test_period_of_time_67(self):
         result = period_of_time("Search meetings from last weekend", NOW)
-        expected_timestamp = ('2018-11-17T00:00:00', '2018-11-17T23:59:59')
+        print(result)
+        expected_timestamp = ('2018-11-24T00:00:00', '2018-11-24T23:59:59')
         self.assertEqual(result, expected_timestamp)
 
     @unittest.skipIf(True, 'Too ambitious')

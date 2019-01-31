@@ -14,6 +14,18 @@ from tsresolve.constants import *
 log = logging.getLogger('tsresolve')
 # log.setLevel(logging.DEBUG)
 
+RE_DATES = re.compile(r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)')
+RE_YEAR = re.compile(r'(?P<year>\s\d{4})(\s|$)')
+RE_AMMOD = re.compile(r'(?P<ammod>\sprevious|\sthis|\snext|\slast|\scoming|\supcoming)')
+RE_MONTH_NAMES = re.compile(
+    r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>january|february|march|april|'
+    r'may|june|july|august|september|october|november|december)\s?'
+    r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
+RE_DAYS = re.compile(
+    r'%s?\s(?P<day>sunday|monday|tuesday|wednesday|thursday|friday|saturday|weekend)' % RE_AMMOD.pattern)
+RE_TILL = re.compile(
+    r'(?P<today>till\stoday|till\sdate|until\stoday|till\snow|till\stime|till\syesterday|till\stomorrow)')
+
 RE_TIME = re.compile(r'(?P<hour>\d{1,2})[^a-z0-9]:?(?P<minute>\d{2})?\s?(?P<mod>a\.m\.|p\.m\.)?(o\'clock)?')
 RE_MONTH = re.compile(r'(?P<date>\d{1,2}(st|nd|rd|th))\sof\s(?P<month>january|feburary|march|april|may|june|july|august|september|october|november|december)')
 # RE_MONTH = re.compile(r'(?P<month>jan(uary)?|feb(r?uary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sept?(ember)?|oct(ober)?|nov(ember)?|dec(ember))?\s(?P<year>\d{4}(\s|$))')
@@ -437,9 +449,15 @@ class RecurringEvent(object):
         hr = int(hr)
         if mod is not None:
             if mod == 'p.m.':
-                return hr + 12
-            if hr == 12:
-                return 0
+                if hr == 12:
+                    return 12
+                else:
+                    return hr + 12
+            if mod == 'a.m.':
+                if hr == 12:
+                    return 0
+                else:
+                    return hr
             return hr
         if hr > 12: return hr
         if hr < self.preferred_time_range[0]:

@@ -1,3 +1,4 @@
+from tsresolve.event_parser import RE_DATES, RE_YEAR, RE_AMMOD, RE_MONTH_NAMES, RE_DAYS, RE_TILL
 from tsresolve import RecurringEvent
 from datetime import timedelta
 from calendar import monthrange
@@ -6,24 +7,7 @@ import re
 from dateutil import parser
 import logging
 
-RE_DATES = re.compile(r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)')
-RE_YEAR = re.compile(r'(?P<year>\s\d{4})(\s|$)')
-RE_AMMOD = re.compile(r'(?P<ammod>\sprevious|\sthis|\snext|\slast|\scoming|\supcoming)')
-# This is to detect shortcut forms of months in future.
-# RE_MONTH_NAMES = re.compile(r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>jan(uary)?|'
-#                             r'feb(r?uary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sept?(ember)?|'
-#                             r'oct(ober)?|nov(ember)?|dec(ember)?)\s?(?P<date>\d{1,2}st|\d{1,2}nd|'
-#                             r'\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
-RE_MONTH_NAMES = re.compile(
-    r'(?P<ammod>previous|this|next|last|coming|upcoming)?\s(?P<month>january|february|march|april|'
-    r'may|june|july|august|september|october|november|december)\s?'
-    r'(?P<date>\d{1,2}st|\d{1,2}nd|\d{1,2}rd|\d{1,2}th)?\s?(?P<year>\d{4})?')
-RE_DAYS = re.compile(
-    r'%s?\s(?P<day>sunday|monday|tuesday|wednesday|thursday|friday|saturday|weekend)' % RE_AMMOD.pattern)
-RE_TILL = re.compile(
-    r'(?P<today>till\stoday|till\sdate|until\stoday|till\snow|till\stime|till\syesterday|till\stomorrow)')
-
-logger = logging.getLogger("app_logger")
+# logger = logging.getLogger("app_logger")
 
 
 def point_of_time(phrase, NOW=""):
@@ -32,7 +16,7 @@ def point_of_time(phrase, NOW=""):
         NOW = NOW.replace(tzinfo=None)
 
     except Exception as e:
-        logger.error(e, exc_info=True)
+        # logger.error(e, exc_info=True)
         NOW = datetime.datetime.now()
 
     r = RecurringEvent(NOW)
@@ -57,7 +41,7 @@ def period_of_time(phrase, NOW=""):
         NOW = NOW.replace(tzinfo=None)
 
     except Exception as e:
-        logger.error(e, exc_info=True)
+        # logger.error(e, exc_info=True)
         NOW = datetime.datetime.now()
 
     r = RecurringEvent(NOW)
@@ -284,8 +268,8 @@ def week_handler(phrase, NOW):
         if match == " next" or match == " coming" or match == " upcoming":
             # checking next uncompleted day to match
             nxwknw = NOW + timedelta(days=7)
-            if phrase_time > nxwknw:
-                day_now = phrase_time + timedelta(days=-7)
+            if phrase_time.replace(hour=0, minute=0, second =0) > nxwknw.replace(hour=0, minute=0, second=0):
+                day_now = phrase_time - timedelta(days=7)
                 dn = day_now.day
                 phrase_time = phrase_time.replace(day=dn)
             else:
@@ -295,7 +279,7 @@ def week_handler(phrase, NOW):
             # Matching with Last year
             prwknw = NOW - timedelta(days=7)
 
-            if phrase_time > prwknw:
+            if phrase_time.replace(hour=0, minute=0, second=0) > prwknw.replace(hour=0, minute=0, second=0):
                 day_now = phrase_time - timedelta(days=7)
                 dn = day_now.day
                 phrase_time = phrase_time.replace(day=dn)
@@ -305,7 +289,7 @@ def week_handler(phrase, NOW):
             phrase_time = phrase_time
 
     else:
-        while phrase_time > NOW:
+        while phrase_time.replace(hour=00, minute=00, second=00) > NOW.replace(hour=00, minute=00, second=00):
             phrase_time = phrase_time - timedelta(days=7)
 
         else:
