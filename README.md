@@ -2,6 +2,16 @@
 
 Timestamp generator for either "Point of time" or "Duration of time" from Text (string). This uses recurrent, parsedatetime libraries to detect dates from strings. However, there are lot of major updations in this library which will allow user to generate either point of time or duration between two point of times.
 
+## Usage:
+##### `pip install tsresolve`
+
+`from tsresolve.time_stamp_resolver import point_of_time, period_of_time`
+
+`point_of_time("tomorrow")`
+
+`period_of_time("tomorrow")`
+
+
 #### Points to know:
 1. It generates time stamps in ISO format.
 2. When no ammod (last/previous/next..) is used before month/year, it detects the passed one.
