@@ -5,7 +5,7 @@ Timestamp generator for either "Point of time" or "Duration of time" from Text (
 ## Usage:
 ##### `pip install tsresolve`
 
-`from tsresolve.time_stamp_resolver import point_of_time, period_of_time`
+`from tsresolve import point_of_time, period_of_time`
 
 `point_of_time("tomorrow")`
 
